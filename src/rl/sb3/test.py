@@ -1,11 +1,12 @@
 from stable_baselines3 import PPO, TD3, DDPG, A2C
-from env.path_finding_env_pygame import BinpickingPathFindingEnv
+from env.path_finding_env_multi import BinpickingPathFindingEnvM
+from env.path_finding_env_single import BinpickingPathFindingEnvS
 import matplotlib.pyplot as plt
 
 def main():
-    env = BinpickingPathFindingEnv() 
+    env = BinpickingPathFindingEnvS() 
     # Load PPO model
-    model = PPO.load("train/best_model_20000000", print_system_info=True)
+    model = PPO.load("train/best_model_2000000", print_system_info=True)
     
     total_rewards = []  # To store rewards for each episode
 
