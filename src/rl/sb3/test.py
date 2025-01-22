@@ -1,17 +1,27 @@
 from stable_baselines3 import PPO, TD3, DDPG, A2C
 from env.path_finding_env_multi import BinpickingPathFindingEnvM
+from env.bin_picking_path_finding_envS import BinPickingPathFindingEnv
 from env.path_finding_env_single import BinpickingPathFindingEnvS
 import matplotlib.pyplot as plt
+from scene.simulator import Simulator
 
 def main():
-    env = BinpickingPathFindingEnvS() 
+    simulator = Simulator(
+        screen_width=800, 
+        screen_height=600, 
+        table_width=600, 
+        table_height=350, 
+        time_limit=400,
+        num_agents=1  # Number of agents in the environment
+    )
+    env = BinPickingPathFindingEnv(simulator) 
+    # env = BinpickingPathFindingEnvS()
     # Load PPO model
-    model = PPO.load("train/best_model_2000000", print_system_info=True)
-    
+    model = PPO.load("train/best_model_4000000", print_system_info=True)
     total_rewards = []  # To store rewards for each episode
 
     # Test the model
-    for episode in range(1000): 
+    for episode in range(100): 
         obs, _ = env.reset()
         done = False
         total_reward = 0

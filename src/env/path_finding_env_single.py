@@ -11,7 +11,7 @@ class BinpickingPathFindingEnvS(Env):
         screen_height=600,
         table_width=600,
         table_height=350,
-        step_size=10,
+        step_size=5,
         time_limit=200,
     ):
         super(BinpickingPathFindingEnvS, self).__init__()
@@ -48,7 +48,7 @@ class BinpickingPathFindingEnvS(Env):
             "goal_reached": (0, 255, 255),  # Cyan for reached goals
             "arrow": (255, 255, 255),  # Arrow color
         }
-        self.prev_positions = deque(maxlen=10)
+        
         self.goal_width = 90
         self.goal_height = 120
         self.object_radius = 25
@@ -87,12 +87,16 @@ class BinpickingPathFindingEnvS(Env):
 
         distances = np.linalg.norm(self.goals - self.object, axis=1)
         self.closest_goal_index = np.argmin(distances)
-
+        self.prev_positions = deque(maxlen=10)
+        self.prev_positions.clear()  # Clear previous positions
+        self.prev_positions.append(self.object.copy())  # Add the starting position
+        
         self.time_steps = 0
         self.velocity = np.zeros(2)  # Initialize velocity if not present
         return self.get_observation(), {}
 
     def step(self, action):
+        
         reward = 0
         done = False
         truncated = False
@@ -114,24 +118,30 @@ class BinpickingPathFindingEnvS(Env):
         # Calculate goal direction and alignment
         target = self.goals[self.closest_goal_index]
         goal_direction = self.goal_direction(target)
-        alignment = np.dot(self.velocity / np.linalg.norm(self.velocity), goal_direction)
-
-        # Reward for alignment
-        reward += 20 * max(alignment, 0)
+        
+        prev_distance_to_goal = np.linalg.norm(self.object - target)
+        distance_to_goal = np.linalg.norm(new_pos - target)
+        distance_change = prev_distance_to_goal - distance_to_goal
+        # Strong reward for getting closer to the target goal
+        if distance_to_goal < prev_distance_to_goal:
+            reward += 10 * distance_change
+        else:
+            reward -= 5 * abs(distance_change)   
+        
 
         # Check if the object is entering the goal area
         goal_entry_zone = self.get_goal_entry_zone(self.closest_goal_index)
         in_entry_zone = goal_entry_zone.collidepoint(int(new_pos[0]), int(new_pos[1]))
 
         # Penalize changes in direction
-        if np.linalg.norm(self.velocity) > 0 and np.linalg.norm(move) > 0:
-            current_direction = self.velocity / np.linalg.norm(self.velocity)
-            new_direction = move / np.linalg.norm(move)
-            angle_change = np.dot(current_direction, new_direction)
-            reward -= 10 * (1 - angle_change)  # Mild penalty for direction change
+        # if np.linalg.norm(self.velocity) > 0 and np.linalg.norm(move) > 0:
+        #     current_direction = self.velocity / np.linalg.norm(self.velocity)
+        #     new_direction = move / np.linalg.norm(move)
+        #     angle_change = np.dot(current_direction, new_direction)
+        #     reward -= 10 * (1 - angle_change)  # Mild penalty for direction change
 
         if in_entry_zone:
-            reward += 50  # Bonus for entering the goal area
+            reward += 75  # Bonus for entering the goal area
             self.object = new_pos
 
             # Check if fully inside the goal
@@ -149,7 +159,7 @@ class BinpickingPathFindingEnvS(Env):
                     self.object_radius * 2,
                 )
             ):
-                reward += 100  # Large reward for goal completion
+                reward += 200  # Large reward for goal completion
                 done = True
         else:
             # Penalize going out of bounds
@@ -159,19 +169,21 @@ class BinpickingPathFindingEnvS(Env):
                 or new_pos[1] < self.table_top_left[1]
                 or new_pos[1] > self.table_bottom_right[1]
             ):
-                reward -= 50  # Penalty for out of bounds
+                
                 done = True
             else:
                 self.object = new_pos
+                # reward += 10
+                # Reward for alignment with goal direction
+                # goal_direction = self.goal_direction(target)
+                # entry_vector = self.get_goal_entry_vector(self.closest_goal_index)
+                # alignment_with_entry = np.dot(goal_direction, entry_vector)
+                # reward += 50 * max(alignment_with_entry, 0)
                 # Reward for moving closer to the goal
-                prev_distance_to_goal = np.linalg.norm(self.object - target)
-                distance_to_goal = np.linalg.norm(self.object - target)
-                distance_change = prev_distance_to_goal - distance_to_goal
-                reward += 40 * max(distance_change, 0)  # Encourage getting closer
-                reward -= 10 * abs(distance_change) if distance_change <= 0 else 0
+                
 
         # Step penalty
-        reward -= 0.2  # Slight penalty to discourage excessive steps
+        reward -= 0.5 
         self.time_steps += 1
         if self.time_steps >= self.time_limit:
             done = True
