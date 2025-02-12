@@ -79,7 +79,7 @@ def load_parameters(yaml_file):
 
 def get_parameters():    
     path_to_file = "/media/bull/Data/Thesis/bin-picking-pathfinding-rl/src/rl/sb3/config"
-    hyper_param_file = f"{path_to_file}/hyperparams.yaml"
+    hyper_param_file = f"{path_to_file}/best_hparams.yaml"
     global_param_file = f"{path_to_file}/globalparams.yaml"
     # Extract parameters from the YAML file
     globalparams = load_parameters(global_param_file)

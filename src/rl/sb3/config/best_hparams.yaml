@@ -1,0 +1,38 @@
+A2C:
+  ent_coef: 0.00011605622926592165
+  gae_lambda: 0.9985677849599779
+  gamma: 0.9683785206509812
+  learning_rate: 0.00013784896319858717
+  max_grad_norm: 0.49492325809078985
+  n_steps: 15
+  policy_layer1: 384
+  policy_layer2: 192
+  vf_coef: 0.14551613014875003
+  rms_prop_eps: 1e-5
+  use_rms_prop: true
+  use_sde: false
+PPO:
+  batch_size: 32
+  clip_range: 0.195245332128465
+  ent_coef: 8.795532973046851e-05
+  gae_lambda: 0.8500000000000001
+  gamma: 0.8917244550966074
+  learning_rate: 0.0003436931489642565
+  max_grad_norm: 0.5247912102898946
+  n_epochs: 10
+  n_steps: 512
+  policy_layer1: 128
+  policy_layer2: 320
+  vf_coef: 0.24909265767645583
+TD3:
+  action_noise: 0.16158383608171722
+  batch_size: 128
+  buffer_size: 416484
+  gamma: 0.9865155632566619
+  gradient_steps: 9
+  learning_rate: 0.00017646089091477316
+  learning_starts: 3453
+  policy_delay: 4
+  target_policy_noise: 0.030784469209344564
+  tau: 0.08001379845429117
+  train_freq: 4
