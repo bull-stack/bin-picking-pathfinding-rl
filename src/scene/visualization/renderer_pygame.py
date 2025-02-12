@@ -1,8 +1,9 @@
+from visualization_base import VisualizationBase
+from simulator import Simulator
+
+from typing import List, Dict
 import pygame
 import numpy as np
-from typing import List, Dict
-from simulator import Simulator
-from visualization_base import VisualizationBase
 
 class RendererPyGame(VisualizationBase):
     def __init__(self, screen_width: int, screen_height: int, colors: Dict[str, tuple], title: str = "Table Pathfinding") -> None:
@@ -43,8 +44,8 @@ class RendererPyGame(VisualizationBase):
         """
         for bin in simulator.bins:
             color = (
-                self.colors["bin_reached"] if bin == simulator.target_bin or bin.in_use
-                else self.colors["bin"]
+                self.colors["bin_available"] if bin.available == True 
+                else self.colors["bin"] 
             )
             pygame.draw.rect(
                 self.screen,
@@ -69,11 +70,11 @@ class RendererPyGame(VisualizationBase):
         Draw agents (as circles) on the screen.
         """
         for agent in simulator.agents:
-            if agent.is_gone:
+            if agent.terminated:
                 continue  # Skip drawing agents that have gone
             color = (
-                self.colors["agent"] if agent == simulator.active_agent 
-                else self.colors["arrow"] 
+                self.colors["agent"] if agent == simulator.active_agent else
+                self.colors["arrow"] 
             )
             pygame.draw.circle(
                 self.screen, color, agent.position.astype(int), agent.radius

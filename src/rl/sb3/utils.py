@@ -1,25 +1,35 @@
 from scene.visualization.renderer_pygame import RendererPyGame
 from scene.visualization.renderer_opengl2d import RendererOpenGL2D
 from scene.visualization.renderer_opengl3d import RendererOpenGL3D
-from stable_baselines3 import PPO, TD3, A2C, DQN, DDPG, SAC
-from scene.simulator import Simulator
 from env.bin_picking_path_finding_envS import BinPickingPathFindingEnv
-def visualization_type(type: str="pygame"):
+from scene.simulator import Simulator
+
+from stable_baselines3 import PPO, TD3, A2C, DDPG, SAC
+
+import yaml
+def visualization_type(type: str):
     # Check which visualization type is chosen and initialize the corresponding renderer
+    colors={
+        "background": (30, 30, 30),
+        "table": (50, 50, 150),
+        "agent": (0, 255, 0),
+        "bin": (255, 0, 0),
+        "agent_done": (0, 255, 255),
+        "bin_available": (44, 255, 5),
+        "arrow": (255, 255, 255),
+        "path": (255, 0, 255),
+    }
+    
+    # normalize colors
+    normalized_colors = {color: tuple(c / 255 for c in color) for color in colors.values()}
+
+    # Initialize the corresponding renderer based on the chosen visualization type
     if type == "pygame":
         # Initialize Pygame renderer
         renderer = RendererPyGame(
             screen_width=800,
             screen_height=600,
-            colors={
-                "background": (30, 30, 30),
-                "table": (50, 50, 150),
-                "agent": (0, 255, 0),
-                "bin": (255, 0, 0),
-                "bin_reached": (255, 255, 0),
-                "arrow": (255, 255, 255),
-                "path": (255, 0, 255),
-            }
+            colors=colors
         )
     
     elif type == "opengl_2d":
@@ -27,62 +37,51 @@ def visualization_type(type: str="pygame"):
         renderer = RendererOpenGL2D(
             screen_width=800,
             screen_height=600,
-            colors={
-                "background": (0.1, 0.1, 0.1),
-                "table": (0.5, 0.5, 0.9),
-                "agent": (0.0, 1.0, 0.0),
-                "bin": (1.0, 0.0, 0.0),
-                "bin_reached": (1.0, 1.0, 0.0),
-                "arrow": (1.0, 1.0, 1.0),
-                "path": (1.0, 0.0, 1.0),
-            }
+            colors=normalized_colors
         )
-    
     elif type == "opengl_3d":
         # Initialize OpenGL 3D renderer
         renderer = RendererOpenGL3D(
             screen_width=800,
             screen_height=600,
-            colors={
-                "background": (0.1, 0.1, 0.1),
-                "table": (0.5, 0.5, 0.9),
-                "agent": (0.0, 1.0, 0.0),
-                "bin": (1.0, 0.0, 0.0),
-                "bin_reached": (1.0, 1.0, 0.0),
-                "arrow": (1.0, 1.0, 1.0),
-                "path": (1.0, 0.0, 1.0),
-            }
+            colors=normalized_colors
         )
-    
     else:
         raise ValueError(f"Unknown visualization type: {type}")
-
     # Return the selected renderer
     return renderer
 
+def init_environment(num_agents: int, renderer_type: str, time_limit: float):
+    # Initialize the environment
+    renderer = visualization_type(renderer_type)
+    simulator = Simulator(num_agents=num_agents, visualization=renderer)
+    env = BinPickingPathFindingEnv(simulator=simulator, time_limit=time_limit)
+    return env
+
 def get_model(model_name: str):
-    """
-    Maps a string model_name to the corresponding model class and initializes it.
-    """
+    """Maps a string model_name to the corresponding model class and initializes it."""
     model_mapping = {
         "PPO": PPO,
         "TD3": TD3,
         "A2C": A2C,
-        "DQN": DQN,
         "DDPG": DDPG,
         "SAC": SAC,
     }
     if model_name not in model_mapping:
         raise ValueError(f"Model '{model_name}' not recognized. Choose from {list(model_mapping.keys())}.")
     
+    # Initialize the model using the loaded config
     return model_mapping[model_name]
 
+def load_parameters(yaml_file):
+    with open(yaml_file, 'r') as f:
+        return yaml.safe_load(f)
 
-
-def init_environment(num_agents: int):
-    # Initialize the environment
-    renderer = visualization_type("pygame")
-    simulator = Simulator(num_agents=num_agents, visualization=renderer)
-    return BinPickingPathFindingEnv(simulator=simulator)
-
-print(init_environment(4).action_space.sample())
+def get_parameters():    
+    path_to_file = "/media/bull/Data/Thesis/bin-picking-pathfinding-rl/src/rl/sb3/config"
+    hyper_param_file = f"{path_to_file}/hyperparams.yaml"
+    global_param_file = f"{path_to_file}/globalparams.yaml"
+    # Extract parameters from the YAML file
+    globalparams = load_parameters(global_param_file)
+    hyperparams = load_parameters(hyper_param_file)
+    return globalparams, hyperparams

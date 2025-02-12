@@ -1,24 +1,25 @@
-from table import Table
-import numpy as np
 from typing import Union
 
+import threading
+import numpy as np
+
+from table import Table
+from agent import Agent
+
 class Bin:
-    def __init__(
-        self, 
-        position: Union[list, tuple, np.ndarray], 
-        width: int, 
-        height: int, 
-        entry_offset: int, 
-        entry_vector: np.ndarray
-    ) -> None:
+    def __init__(self, position: Union[list, tuple, np.ndarray], width: int, height: int, entry_offset: int, entry_vector: np.ndarray) -> None:
         self.position: np.ndarray = np.array(position, dtype=np.float32)
         self.width: int = width
         self.height: int = height
         self.entry_offset: int = entry_offset
-        self.in_use: bool = False
         self.entry_vector: np.ndarray = np.array(entry_vector, dtype=np.float32)
-
-    
+        self.available: bool = True
+        self.lock: threading.Lock = threading.Lock()
+        self.reactivation_time: threading.Timer = None
+    def reset(self):
+        """Reset the bin's state."""
+        self.available = True
+        self.reactivation_time = 0
     def get_boundaries(self) -> np.ndarray:
         """
         Return the boundaries of the bin as a bounding box (AABB).
@@ -53,6 +54,20 @@ class Bin:
         
         return entry_zone
 
+            
+    def temporarily_disable(self, delay: float, agent: Agent):
+        """Disable the bin for a set duration."""
+        self.available = False
+        self.reactivation_time = threading.Timer(delay, self.reactivate, args=(agent, ))
+        self.reactivation_time.start()
+
+    def reactivate(self, agent: Agent):
+        """Reactivate the bin after the delay."""
+        with self.lock:
+            self.available = True
+            self.reactivation_time = None 
+            agent.terminated = True
+                    
     def __eq__(self, other: object) -> bool:
         """
         Check for equality between two Bin instances based on their position.

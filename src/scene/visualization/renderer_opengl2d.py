@@ -1,8 +1,10 @@
 import glfw
 from OpenGL.GL import *
 from OpenGL.GLU import *
+
 from typing import List, Dict
 from math import cos, sin
+
 from simulator import Simulator
 from visualization_base import VisualizationBase
 

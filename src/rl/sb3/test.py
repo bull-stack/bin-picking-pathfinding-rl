@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-from utils import init_environment, get_model
+
+from utils import init_environment, get_model, get_parameters
 
 def load_trained_model(model_name, model_path):
     """
@@ -38,11 +39,11 @@ def plot_rewards(total_rewards, model_name):
     plt.grid()
     plt.show()
 
-def evaluate_model(model_name, model_path, num_episodes=50, num_agents=4, render=True):
+def evaluate_model(model_name, model_path, renderer_type, time_limit, num_episodes=50, num_agents=4, render=True):
     """
     Evaluate a trained RL model on the environment.
     """
-    env = init_environment(num_agents=num_agents)  # Create environment
+    env = init_environment(num_agents=num_agents, renderer_type=renderer_type, time_limit=time_limit)  # Create environment
     model = load_trained_model(model_name, model_path)  # Load the trained model
 
     total_rewards = []  # Store rewards for each episode
@@ -60,14 +61,22 @@ def evaluate_model(model_name, model_path, num_episodes=50, num_agents=4, render
     
 def main():
     # Specify model details
-    model_name = "PPO"  # Choose from: "PPO", "TD3", "A2C", "DQN", "DDPG", "SAC"
-    model_path = "train/PPO/best_model_360000"  # Update the path based on your model location
+    global_params, _ = get_parameters()
+    renderer_type = global_params["renderer_type"]
+    model_name = global_params["model_name"]
+    num_agents = global_params["num_agents"]
+    time_limit = global_params["time_limit"]
+    time_steps = global_params["time_steps"]
+
     num_episodes = 50  # Number of episodes to evaluate
-    num_agents = 4  # Number of agents in the environment
+    
+    model_path = f"train/{model_name}/best_{num_agents}_{time_steps}"  # Update the path based on your model location
 
     # Evaluate the chosen model
     evaluate_model(model_name=model_name, 
                    model_path=model_path, 
+                   renderer_type=renderer_type,
+                   time_limit=time_limit,
                    num_episodes=num_episodes, 
                    num_agents=num_agents, 
                    render=True)
