@@ -1,0 +1,9 @@
+
+
+model_name: PPO
+num_agents: 4
+renderer_type: pygame
+save_path: ./train/
+log_dir: ./logs/
+time_limit: 250
+time_steps: 2000000

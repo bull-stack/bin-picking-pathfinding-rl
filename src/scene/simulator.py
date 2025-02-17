@@ -71,7 +71,7 @@ class Simulator:
             bin.reset()
 
     def action(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict]:
-        self.active_agent.apply_action(action)
+        self.active_agent.calculate_position(action)
 
     def evaluate_move(self) -> float:
         """Evaluate the active agent's performance. """

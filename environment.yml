@@ -1,0 +1,17 @@
+name: bin_picking_env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10.15
+  - numpy
+  - matplotlib
+  - gymnasium
+  - stable-baselines3
+  - optuna
+  - pyyaml
+  - pip
+  - pip:
+    - torch
+    - torchvision
+    - torchaudio

@@ -1,7 +1,0 @@
-model_name: "TD3" #PPO TD3 A2C DDPG SAC
-num_agents: 4
-time_limit: 250
-time_steps: 1000000
-renderer_type: "pygame"
-log_dir: "./logs/"
-save_path: "./train/"

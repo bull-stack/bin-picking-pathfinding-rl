@@ -24,7 +24,7 @@ class Agent:
         half_size = self.radius
         return np.array([self.position - half_size, self.position + half_size])
     
-    def apply_action(self, action: np.ndarray) -> None:
+    def calculate_position(self, action: np.ndarray) -> None:
         """Update the agent's position based on the action."""
         angle_rad = action[0] * np.pi  # Map action to angle
         move = np.array([np.cos(angle_rad), np.sin(angle_rad)]) * self.step_size

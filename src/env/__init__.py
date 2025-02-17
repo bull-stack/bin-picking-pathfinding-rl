@@ -1,0 +1,1 @@
+from .bin_picking_path_finding_env import BinPickingPathFindingEnv
