@@ -1,0 +1,50 @@
+A2C:
+  policy: "MlpPolicy"
+  ent_coef: 0.0001
+  gae_lambda: 0.8873970576948857
+  gamma: 0.9356925988348177
+  learning_rate: 0.0006312668588530823
+  max_grad_norm: 0.8648800266813759
+  n_steps: 896
+  vf_coef: 0.4123485757397457
+DDPG:
+  policy: "MlpPolicy"
+  batch_size: 64
+  buffer_size: 896190
+  gamma: 0.9005931711229882
+  gradient_steps: 8
+  learning_rate: 0.00034031653061981074
+  tau: 0.025423460736357685
+  train_freq: 9
+PPO:
+  policy: "MlpPolicy"
+  batch_size: 64
+  clip_range: 0.12384784974010783
+  ent_coef: 0.006219616215552006
+  gae_lambda: 0.9925946793947176
+  gamma: 0.9925946793947176
+  learning_rate: 0.0005374399391671351
+  max_grad_norm: 0.6723668077382097
+  n_epochs: 10
+  n_steps: 2048
+  vf_coef: 0.7908856320251639
+TD3:
+  policy: "MlpPolicy"
+  batch_size: 64
+  buffer_size: 732075
+  gamma: 0.943739339656546
+  gradient_steps: 8
+  learning_rate: 0.0005506111503347673
+  policy_delay: 3
+  tau: 0.07590088214617362
+  train_freq: 4
+SAC:
+  policy: "MlpPolicy"
+  learning_rate: 0.000426259685077743
+  buffer_size: 623935
+  batch_size: 128
+  tau: 0.04204289424617846
+  gamma: 0.9317476330929748
+  train_freq: 7
+  gradient_steps: 3
+  ent_coef: 3.356105012425699e-05

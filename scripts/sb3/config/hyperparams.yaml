@@ -1,0 +1,57 @@
+# hyperparameters.yaml
+PPO:
+  policy: "MlpPolicy"
+  n_steps: 2048 
+  batch_size: 64
+  gamma: 0.99
+  learning_rate: 0.0003
+  clip_range: 0.2
+  gae_lambda: 0.95
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  n_epochs: 10
+
+TD3:
+  policy: "MlpPolicy"
+  batch_size: 100
+  buffer_size: 1000000
+  gamma: 0.99
+  learning_rate: 0.001
+  policy_delay: 2
+  tau: 0.005
+  train_freq: 1
+  gradient_steps: 1
+
+SAC:
+  policy: "MlpPolicy"
+  batch_size: 256
+  gamma: 0.99
+  learning_rate: 0.0003
+  buffer_size: 1000000
+  tau: 0.005
+  train_freq: 1
+  gradient_steps: 1
+  ent_coef: "auto"
+
+DDPG:
+  policy: "MlpPolicy"
+  batch_size: 100
+  gamma: 0.99
+  learning_rate: 0.001
+  buffer_size: 1000000
+  tau: 0.005
+  train_freq: 1
+  gradient_steps: 1
+
+A2C:
+  policy: "MlpPolicy"
+  n_steps: 5
+  gamma: 0.99
+  learning_rate: 0.0007
+  ent_coef: 0.0
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  rms_prop_eps: 1e-5
+  use_rms_prop: true
+  use_sde: false
