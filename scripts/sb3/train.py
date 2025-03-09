@@ -26,28 +26,7 @@ def setup_callback(num_agents, check_freq, save_path, n_steps, verbose, model_na
         verbose=verbose,
         model_name=model_name,  # Name of the model for saving the best model
     )
-    
-def update_dict(hyperparams: dict[str, Any]) -> dict[str, Any]:
-    for key, value in hyperparams.items():
-        if isinstance(value, dict):
-            update_dict(value)
-        else:
-            if key in ["policy_kwargs", "replay_buffer_class", "replay_buffer_kwargs"]:
-                hyperparams[key] = eval(value)
-            elif key in ["learning_rate", "clip_range", "clip_range_vf", "delta_std"]:
-                if isinstance(value, str):
-                    _, initial_value = value.split("_")
-                    initial_value = float(initial_value)
-                    hyperparams[key] = lambda progress_remaining: progress_remaining * initial_value
-                elif isinstance(value, (float, int)):
-                    # Negative value: ignore (ex: for clipping)
-                    if value < 0:
-                        continue
-                    hyperparams[key] = constant_fn(float(value))
-                else:
-                    raise ValueError(f"Invalid value for {key}: {hyperparams[key]}")
 
-    return hyperparams
 
 def setup_model(num_agents, model_name, env, hyperparams, log_dir, verbose, device):
     """
@@ -58,8 +37,8 @@ def setup_model(num_agents, model_name, env, hyperparams, log_dir, verbose, devi
     model_class = get_model(model_name)
     print(hyperparams.get(model_name, {}))
     model = model_class(
-        "MlpPolicy",
-        env, 
+        # policy="MlpPolicy",
+        env=env, 
         tensorboard_log=log_dir, 
         verbose=verbose, 
         **hyperparams.get(model_name, {}),

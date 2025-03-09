@@ -1,31 +1,31 @@
 # hyperparameters.yaml
 PPO:
+  policy: "MlpPolicy"
   n_steps: 2048 
   batch_size: 64
-  gamma: 0.9925946793947176
-  learning_rate: 0.0005374399391671351
-  clip_range: 0.12384784974010783
-  gae_lambda: 0.8500000000000001
-  ent_coef: 0.006219616215552006
-  vf_coef: 0.7908856320251639
-  max_grad_norm: 0.6723668077382097
+  gamma: 0.99
+  learning_rate: 0.0003
+  clip_range: 0.2
+  gae_lambda: 0.95
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
   n_epochs: 10
 
 TD3:
-  n_steps: 2048 
-  batch_size: 32
+  policy: "MlpPolicy"
+  batch_size: 100
   buffer_size: 1000000
-  gamma: 0.9410860417285466
-  learning_rate: 0.00023187992971709332
+  gamma: 0.99
+  learning_rate: 0.001
   policy_delay: 2
-  policy_layer1: 128
-  policy_layer2: 64
   tau: 0.005
   train_freq: 1
   gradient_steps: 1
 
 SAC:
-  batch_size: 64
+  policy: "MlpPolicy"
+  batch_size: 256
   gamma: 0.99
   learning_rate: 0.0003
   buffer_size: 1000000
@@ -35,15 +35,17 @@ SAC:
   ent_coef: "auto"
 
 DDPG:
-  batch_size: 64
+  policy: "MlpPolicy"
+  batch_size: 100
   gamma: 0.99
-  learning_rate: 0.0003
+  learning_rate: 0.001
   buffer_size: 1000000
   tau: 0.005
   train_freq: 1
   gradient_steps: 1
 
 A2C:
+  policy: "MlpPolicy"
   n_steps: 5
   gamma: 0.99
   learning_rate: 0.0007

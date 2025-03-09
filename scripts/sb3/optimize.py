@@ -22,7 +22,7 @@ def create_model_params(trial, model_name, n_steps=256, n_envs=1):
     params = {
         "learning_rate": trial.suggest_float("learning_rate", 1e-5, 1e-3, log=True),
         "gamma": trial.suggest_float("gamma", 0.9, 0.99),
-        "batch_size": trial.suggest_categorical("batch_size", [32, 64, 128, 256])
+        
         # "policy_kwargs": {
         #     "activation_fn": nn.ELU,
         #     "net_arch": [
@@ -46,19 +46,18 @@ def create_model_params(trial, model_name, n_steps=256, n_envs=1):
             "clip_range": trial.suggest_float("clip_range", 0.1, 0.5),
             "gae_lambda": trial.suggest_float("gae_lambda", 0.8, 1.0),
             "n_epochs": trial.suggest_int("n_epochs", 1, 10),
-        })
+            "batch_size": trial.suggest_categorical("batch_size", [32, 64, 128, 256]),
+            })
     # TD3 specific hyperparameters
     elif model_name == "TD3":    
         params.update({
             "policy_delay": trial.suggest_int("policy_delay", 2, 5),
-            "action_noise": trial.suggest_float("action_noise", 0.0, 0.3),
-            "learning_starts": trial.suggest_int("learning_starts", 1000, 10000),
             "train_freq": trial.suggest_int("train_freq", 1, 10),
             "buffer_size": trial.suggest_int("buffer_size", 50000, 1000000),
             "tau": trial.suggest_float("tau", 0.001, 0.1),
             "gradient_steps": trial.suggest_int("gradient_steps", 1, 10),
             "target_policy_noise": trial.suggest_float("target_policy_noise", 0.0, 0.2),
-            # "action_noise": NormalActionNoise(mean=0.0, sigma=np.full(1, action_noise_std)),
+            "batch_size": trial.suggest_categorical("batch_size", [32, 64, 128, 256]),
         })
     # SAC specific hyperparameters
     elif model_name == "SAC":
@@ -70,21 +69,22 @@ def create_model_params(trial, model_name, n_steps=256, n_envs=1):
             "tau": trial.suggest_float("tau", 0.001, 0.1),
             "ent_coef": trial.suggest_float("ent_coef", 1e-5, 1e-1, log=True),
             "buffer_size": trial.suggest_int("buffer_size", 50000, 1000000),
+            "batch_size": trial.suggest_categorical("batch_size", [32, 64, 128, 256]),
         })
     # DDPG specific hyperparameters
     elif model_name == "DDPG":
         params.update({
             # "action_noise": NormalActionNoise(mean=0.0, sigma=np.full(1, action_noise_std)),
             "buffer_size": trial.suggest_int("buffer_size", 50000, 1000000),
-            "learning_starts": trial.suggest_int("learning_starts", 1000, 10000),
             "train_freq": trial.suggest_int("train_freq", 1, 10),
             "gradient_steps": trial.suggest_int("gradient_steps", 1, 10),
             "tau": trial.suggest_float("tau", 0.001, 0.1),
+            "batch_size": trial.suggest_categorical("batch_size", [32, 64, 128, 256]),
         })
     # A2C specific hyperparameters
     elif model_name == "A2C":
         params.update({
-            "n_steps": trial.suggest_int("n_steps", 5, 20, step=5),
+            "n_steps": trial.suggest_int("n_steps", 128, 2048, step=128),
             "gae_lambda": trial.suggest_float("gae_lambda", 0.8, 1.0),
             "ent_coef": trial.suggest_float("ent_coef", 1e-5, 1e-1, log=True),
             "vf_coef": trial.suggest_float("vf_coef", 0.1, 1.0),
@@ -128,7 +128,6 @@ def optimize_model(trial, global_params, n_envs, n_eval_episodes):
     time_steps = global_params["time_steps"]
     
     hyperparams = create_model_params(trial, model_name)
-    lambda_tradeoff = trial.suggest_uniform("lambda_tradeoff", 0.05, 0.5)  # Let Optuna tune λ
     print(f"Trial {trial.number}: {hyperparams}")
     
     def make_monitored_env(num_agents, renderer_type, time_limit):
@@ -154,8 +153,10 @@ def optimize_model(trial, global_params, n_envs, n_eval_episodes):
     model.learn(total_timesteps=time_steps)
     # Evaluate the trained model
     mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=n_eval_episodes, deterministic=True)
+    if trial.should_prune():
+        raise optuna.TrialPruned()
     env.close() #
-    return mean_reward - lambda_tradeoff * std_reward
+    return mean_reward
 
 def main():    
 
@@ -164,10 +165,9 @@ def main():
     global_params, _ = get_parameters()
     model_name = global_params["model_name"]
     n_envs = 1
-    n_eval_episodes=50
-    print(model_name)
+    n_eval_episodes=5
     study = optuna.create_study(direction="maximize")
-    study.optimize(lambda trial: optimize_model(trial, global_params, n_envs, n_eval_episodes), n_trials=40)
+    study.optimize(lambda trial: optimize_model(trial, global_params, n_envs, n_eval_episodes), n_trials=25)
     
     # Print the best hyperparameters
     print(f"Best hyperparameters for {model_name}:", study.best_params)

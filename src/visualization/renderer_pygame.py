@@ -71,8 +71,8 @@ class RendererPyGame(VisualizationBase):
         Draw agents (as circles) on the screen.
         """
         for agent in simulator.agents:
-            if agent.terminated:
-                continue  # Skip drawing agents that have gone
+            # if agent.terminated:
+            #     continue  # Skip drawing agents that have gone
             color = (
                 self.colors["agent"] if agent == simulator.active_agent else
                 self.colors["arrow"] 

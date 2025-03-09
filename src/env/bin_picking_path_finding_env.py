@@ -73,7 +73,7 @@ class BinPickingPathFindingEnv(Env):
         return self.get_state(), {}
 
     def step(self, action):
-        reward = -1.0  # Small default step penalty to encourage efficiency
+        reward = -5.0  # Small default step penalty to encourage efficiency
         done = False
         truncated = False
         

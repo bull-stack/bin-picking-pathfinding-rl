@@ -84,11 +84,15 @@ class Simulator:
             reward += max(0.0, direction_similarity) * 5.0  # Scaled up for better guidance
 
         # Reward for moving closer to the target
+        closer_reward = 0
         is_closer, distance_change = self.closer_to_target(target_pos)
         if is_closer:
-            reward += min(5.0, distance_change * 8.0)  # Adjusted scaling
-        else:
-            reward -= min(3.0, abs(distance_change) * 6.0)  # Balanced penalty
+            closer_reward += max(0.0, distance_change) * 20.0  # Scaled up for better guidance
+        reward += distance_change + closer_reward
+        # if is_closer:
+        #     reward += min(5.0, distance_change * 8.0)  # Adjusted scaling
+        # else:
+        #     reward -= min(3.0, abs(distance_change) * 6.0)  # Balanced penalty
         return reward
     
     def select_active_agent(self) -> None:
@@ -179,8 +183,8 @@ class Simulator:
     def process_agent_in_bin(self) -> None:
         """Process the agent when it reaches the target bin."""
         self.active_agent.is_done = True
-        delay = np.random.random_integers(1, 5)
-        self.target_bin.temporarily_disable(delay, self.active_agent)
+        # delay = np.random.random_integers(1, 5)
+        # self.target_bin.temporarily_disable(delay, self.active_agent)
         self.active_agent = None
         self.target_bin = None
         self.entry_zone = False
